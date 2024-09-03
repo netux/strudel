@@ -14,7 +14,7 @@ import {
   resetLoadedSounds,
   initAudioOnFirstClick,
 } from '@strudel/webaudio';
-import { getAudioDevices, setAudioDevice, setVersionDefaultsFrom } from './util.mjs';
+import { getAudioDevices, setAudioDevice, setGlobalAudioVolume, setVersionDefaultsFrom } from './util.mjs';
 import { StrudelMirror, defaultSettings } from '@strudel/codemirror';
 import { clearHydra } from '@strudel/hydra';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -159,9 +159,11 @@ export function useReplContext() {
     editorRef.current?.updateSettings(editorSettings);
   }, [_settings]);
 
-  // on first load, set stored audio device if possible
+  // on first load...
   useEffect(() => {
-    const { audioDeviceName } = _settings;
+    const { audioDeviceName, audioVolume } = _settings;
+
+    // set stored audio device if possible
     if (audioDeviceName !== defaultAudioDeviceName) {
       getAudioDevices().then((devices) => {
         const deviceID = devices.get(audioDeviceName);
@@ -171,6 +173,9 @@ export function useReplContext() {
         setAudioDevice(deviceID);
       });
     }
+
+    // set stored audio volume
+    setGlobalAudioVolume(audioVolume);
   }, []);
 
   //
